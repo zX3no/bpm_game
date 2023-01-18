@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+</head>
+
+<style>
+    #box {
+        width: 500px;
+        height: 500px;
+        background-color: gray;
+    }
+</style>
+
+<body>
+    <div id="box"></div>
+</body>
+
+<script async defer>
+    let audio = new Audio('kick.wav');
+    audio.volume = 0.2;
+    window.setInterval(function () {
+        audio.play();
+    }, 600);
+
+    let inputs = [];
+
+    let box = document.getElementById('box');
+    box.style.cursor = 'pointer';
+    box.onclick = click;
+
+    let running = false;
+    function click() {
+        if (!running) {
+            console.log("Starting game!");
+            running = true;
+            window.setTimeout(function () {
+                let prev = 0;
+                let ms = [];
+                for (const instant of inputs) {
+                    if (prev === 0) {
+                        prev = instant;
+                    } else {
+                        ms.push(instant - prev);
+                        prev = instant;
+                    }
+                }
+
+                let min = Math.min(...ms);
+                let max = Math.max(...ms);
+
+                const sum = ms.reduce((a, b) => a + b, 0);
+                const average = (sum / ms.length) || 0;
+
+                console.log("Times: " + ms);
+                console.log("Variance: " + (max - min).toFixed(2) + "ms");
+                console.log("Average: " + (average).toFixed(2) + "ms");
+                running = false;
+                inputs = [];
+            }, 4000);
+        }
+
+        inputs.push(performance.now());
+        box.style.backgroundColor = 'red';
+        window.setTimeout(function () { box.style.backgroundColor = 'gray' }, 150);
+    }
+
+    document.addEventListener('keydown', event => {
+        if (event.code === 'Space') {
+            click();
+        }
+    })
+
+
+    //To keep the timings in sync with a song.
+    //Trigger the sound on an instant and keep track of that.
+    //Then you can calculate every say 750ms interval after that.
+    //Measure the distance between the excepted interval and the players.
+    //Sometimes the player will input too many or not enough times so this
+    //will need to be accounted for.
+
+</script>
+
+</html>
